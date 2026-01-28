@@ -1,33 +1,13 @@
-// // Import the functions you need from the SDKs you need
-// import { initializeApp , getApp , getApps } from "firebase/app";
-// import { getAuth } from 'firebase/auth' ;
-// import { getFirestore } from 'firebase/firestore' ;
-
-// // Your web app's Firebase configuration
-// // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// const firebaseConfig = {
-//     apiKey: "AIzaSyAlxEaKsJJWoi19LYkkEoqNKO9lgxwRtjE",
-//     authDomain: "prepwise-2e2e6.firebaseapp.com",
-//     projectId: "prepwise-2e2e6",
-//     storageBucket: "prepwise-2e2e6.firebasestorage.app",
-//     messagingSenderId: "808755962390",
-//     appId: "1:808755962390:web:a0c491af1b4630334ccb37",
-//     measurementId: "G-SSNX5DY3TJ"
-// };
-
-// // Initialize Firebase
-// const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-// // const analytics = getAnalytics(app);
-
-// export const auth = getAuth(app) ;
-// export const db = getFirestore(app) ;
-
-
-
-import { initializeApp, getApp, getApps } from "firebase/app";
+// Import the functions you need from the SDKs you need
+import { getApp, getApps, initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -38,7 +18,9 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+// Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// const analytics = getAnalytics(app);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
