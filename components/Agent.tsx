@@ -8,9 +8,9 @@ import { vapi } from "@/lib/vapi.sdk";
 import { ca } from "zod/v4/locales";
 import { interviewer } from "@/constants";
 import { createFeedback } from "@/lib/actions/general.action";
+// import Message from "@vapi-ai/web";
 
 // import {type} from "os";
-// import type { Message } from "@vapi-ai/web";
 
 // interface AgentProps {
 //   userName?: string | null;
@@ -30,11 +30,19 @@ interface SavedMessage {
   content: string;
 }
 
-const Agent = ({ userName, userId , type , interviewId , questions}: AgentProps) => {
+const Agent = ({
+  userName,
+  userId,
+  interviewId,
+  feedbackId,
+  type,
+  questions,
+}: AgentProps) => {
   const router = useRouter();
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
   const [messages, setMessages] = useState<SavedMessage[]>([]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [lastMessage, setLastMessage] = useState<string>("");
 
   useEffect(() => {
     const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
@@ -74,13 +82,15 @@ const Agent = ({ userName, userId , type , interviewId , questions}: AgentProps)
     };
   }, []);
 
+  
+
   const handleGenerateFeedback = async (messages: SavedMessage[]) => {
     console.log("Generate feedback here.");
 
     const {success , feedbackId: id} = await createFeedback({
       interviewId: interviewId! ,
       userId: userId! ,
-      transcript: messages
+      transcript: messages , feedbackId,
     })
 
     if(success && id){
@@ -99,7 +109,7 @@ const Agent = ({ userName, userId , type , interviewId , questions}: AgentProps)
         handleGenerateFeedback(messages);
       }
     }
-} , [messages , callStatus , type , userId]);
+} , [messages, callStatus, feedbackId, interviewId, router, type, userId] );
 
   // ⭐ START ASSISTANT + START WORKFLOW
   const handleCall = async () => {

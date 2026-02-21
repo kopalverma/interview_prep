@@ -117,10 +117,10 @@ const AuthForm = ({type}: {type:FormType}) => {
                 </p>
             </div>
         </div>
-    )
+    );
 
     // )
-}
+};
 export default AuthForm
 
 

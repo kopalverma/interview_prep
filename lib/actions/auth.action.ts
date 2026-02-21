@@ -114,6 +114,12 @@ export async function isAuthenticated() {
     return !!user;
 }
 
+export async function signOut() {
+    const cookieStore = await cookies();
+
+    cookieStore.delete("session");
+}
+
 // export async function getInterviewsByUserId(userId: string): Promise<Interview | null> {
 //     const interviews = await db
 //         .collection('interviews')
