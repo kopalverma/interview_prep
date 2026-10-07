@@ -155,6 +155,47 @@ End the conversation on a polite and positive note.
   },
 };
 
+export const generatorAssistant: CreateAssistantDTO = {
+  name: "Interview Generator",
+  firstMessage:
+    "Hello! I am your AI interview creator. What job role are you preparing for today?",
+  transcriber: {
+    provider: "deepgram",
+    model: "nova-2",
+    language: "en",
+  },
+  voice: {
+    provider: "11labs",
+    voiceId: "sarah",
+    stability: 0.4,
+    similarityBoost: 0.8,
+    speed: 0.9,
+    style: 0.5,
+    useSpeakerBoost: true,
+  },
+  model: {
+    provider: "openai",
+    model: "gpt-4",
+    messages: [
+      {
+        role: "system",
+        content: `You are an AI assistant helping a candidate set up a practice mock interview.
+Your goal is to converse with the user and gather the following details:
+1. Job Role (e.g. Frontend Developer, Backend Developer, Full Stack Engineer)
+2. Experience Level (e.g. Entry, Junior, Mid-level, Senior)
+3. Tech Stack / Skills (e.g. React, TypeScript, Node.js, Next.js)
+4. Interview Type (Technical, Behavioral, or Mixed)
+5. Number of Questions (default to 3 to 5 questions)
+
+Guidelines:
+- Ask questions naturally one by one.
+- Keep responses short, concise, and friendly.
+- Once the user provides the answers, summarize the details, thank them, and tell them that their interview questions are being generated and they can now end the call.`,
+      },
+    ],
+  },
+};
+
 export const feedbackSchema = z.object({
   totalScore: z.number(),
   // categoryScores: z.tuple([

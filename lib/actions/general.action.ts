@@ -5,6 +5,8 @@ import { google } from "@ai-sdk/google";
 
 import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
+import { z } from "zod";
+import { getRandomInterviewCover } from "@/lib/utils";
 
 export async function createFeedback(params: CreateFeedbackParams) {
   const { interviewId, userId, transcript, feedbackId } = params;
@@ -18,9 +20,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
       .join("");
 
     const { object } = await generateObject({
-      model: google("gemini-2.5-flash", {
-        structuredOutputs: false,
-      }),
+      model: google("gemini-2.5-flash"),
       schema: feedbackSchema,
       prompt: `
         You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
@@ -123,3 +123,63 @@ export async function getInterviewsByUserId(
     ...doc.data(),
   })) as Interview[];
 }
+
+export async function generateInterviewFromTranscript(params: {
+  userId: string;
+  transcript: { role: string; content: string }[];
+}) {
+  const { userId, transcript } = params;
+
+  if (!transcript || transcript.length === 0) {
+    return { success: false, message: "No conversation recorded" };
+  }
+
+  try {
+    const formattedTranscript = transcript
+      .map(
+        (sentence: { role: string; content: string }) =>
+          `- ${sentence.role}: ${sentence.content}\n`
+      )
+      .join("");
+
+    const { object } = await generateObject({
+      model: google("gemini-2.5-flash"),
+      schema: z.object({
+        role: z.string().describe("The job role discussed, e.g. Frontend Developer"),
+        level: z.string().describe("The experience level, e.g. Junior, Mid-level, Senior"),
+        techstack: z.array(z.string()).describe("List of technologies mentioned"),
+        type: z.enum(["Technical", "Behavioral", "Mixed"]).describe("The interview type"),
+        questions: z
+          .array(z.string())
+          .describe(
+            "List of 3 to 5 realistic interview questions based on the candidate's answers"
+          ),
+      }),
+      prompt: `Extract interview setup details and generate interview questions from this conversation transcript between an AI interview creator and a candidate.
+Transcript:
+${formattedTranscript}
+
+If any details were not explicitly stated, provide sensible defaults (e.g. Full Stack Developer, Junior, React, Node.js, Technical).
+Generate 3 to 5 questions that are clear, concise, and suitable for a voice interview. Do not use special characters or slashes.`,
+    });
+
+    const interview = {
+      role: object.role,
+      type: object.type,
+      level: object.level,
+      techstack: object.techstack,
+      questions: object.questions,
+      userId: userId,
+      finalized: true,
+      coverImage: getRandomInterviewCover(),
+      createdAt: new Date().toISOString(),
+    };
+
+    const docRef = await db.collection("interviews").add(interview);
+
+    return { success: true, interviewId: docRef.id };
+  } catch (error) {
+    console.error("Error generating interview:", error);
+    return { success: false };
+  }
+}

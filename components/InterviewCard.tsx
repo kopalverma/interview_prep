@@ -6,9 +6,18 @@ import { Button } from "./ui/button";
 import DisplayTechIcons from "./DisplayTechIcons";
 import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
-const InterviewCard = async ({interviewId , userId , role , type , techstack , createdAt}: InterviewCardProps) => {
-    const feedback = userId && interviewId
-    ? await getFeedbackByInterviewId({interviewId, userId})
+const InterviewCard = async ({
+    id,
+    interviewId,
+    userId,
+    role,
+    type,
+    techstack,
+    createdAt,
+}: InterviewCardProps) => {
+    const currentInterviewId = interviewId || id;
+    const feedback = userId && currentInterviewId
+    ? await getFeedbackByInterviewId({interviewId: currentInterviewId, userId})
     : null;
     const normalizedType = /mix/gi.test(type) ? 'Mixed' : type ;
     const formattedDate = dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D, YYYY');
@@ -40,8 +49,8 @@ const InterviewCard = async ({interviewId , userId , role , type , techstack , c
                 <div className="flex flex-row justify-between">
                     <DisplayTechIcons techStack={techstack} />
                     <Button className="btn-primary">
-                        <Link href={feedback ? `/interview/${interviewId}/feedback` : `/interview/${interviewId}`}>
-                            {feedback ? 'Check Feedback' : 'View Interview'}
+                        <Link href={feedback ? `/interview/${currentInterviewId}/feedback` : `/interview/${currentInterviewId}`}>
+                            {feedback ? 'Check Feedback' : 'Start Interview'}
                         </Link>
                     </Button>
                 </div>
